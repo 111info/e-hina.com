@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-hina 2027</title>
+    <style>
+        /* --- 全体のデザイン（角丸とフォント） --- */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 30px; /* 全体を大きな角丸に */
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h1 { color: #333; margin-bottom: 20px; }
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 15px; /* 入力欄も角丸 */
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 15px; /* ボタンも角丸 */
+            font-size: 18px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover { background-color: #0056b3; }
+        #login-error { color: red; display: none; margin-top: 10px; }
+
+        /* メインコンテンツ（初期は非表示） */
+        #main-content { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen" class="container">
+        <h1>e-hina ログイン</h1>
+        <p>パスワードを入力してください</p>
+        <input type="password" id="pass-input" placeholder="Password">
+        <button onclick="checkLogin()">ログイン</button>
+        <p id="login-error">パスワードが違います</p>
+    </div>
+
+    <div id="main-content" class="container">
+        <h1>ようこそ e-hinaへ</h1>
+        <p>ログインに成功しました（10年間有効）</p>
+        </div>
+
+    <script>
+        // --- ログインチェック機能 ---
+        function checkLogin() {
+            const pass = document.getElementById('pass-input').value;
+            if (pass === 'ooj1371') {
+                // 10年間のCookieをセット (秒数: 10年 = 315360000秒)
+                document.cookie = "auth=true; max-age=315360000; path=/";
+                showMain();
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        // --- Cookieがあるか確認して画面を切り替える ---
+        window.onload = function() {
+            if (document.cookie.split(';').some((item) => item.trim().startsWith('auth=true'))) {
+                showMain();
+            }
+        };
+
+        function showMain() {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+        /* --- Firebase連携の設定（後でここにConfigを貼る） --- */
+        // var firebaseConfig = { ★ここにFirebaseのConfigを貼る★ };
+    </script>
+</body>
+</html>
