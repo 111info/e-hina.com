@@ -216,18 +216,29 @@
         window.openConfirm = () => document.getElementById('confirm-view').classList.add('open');
         window.closeConfirm = () => document.getElementById('confirm-view').classList.remove('open');
 
-        // ★支払い確定処理
-        window.commitPayment = () => {
-            const reqRef = ref(db, 'requests');
-            push(reqRef, {
-                amount: 3300,
-                status: "pending",
-                timestamp: Date.now()
-            }).then(() => {
-                alert("申請を確定しました。");
-                closeConfirm();
-            }).catch(err => alert("エラーが発生しました"));
-        };
+       // ★支払い確定処理（送信後、自動でホームに戻る）
+window.commitPayment = () => {
+    const reqRef = ref(db, 'requests');
+    
+    // ボタンの連打防止（任意：必要なら追加）
+    // event.target.disabled = true;
+
+    push(reqRef, {
+        amount: 3300,
+        status: "pending",
+        timestamp: Date.now()
+    }).then(() => {
+        // 送信が成功したら実行される
+        alert("申請を確定しました。");
+        
+        // 自動で確認画面を閉じてホームに戻る
+        closeConfirm(); 
+        
+    }).catch(err => {
+        alert("送信に失敗しました。電波の良い場所で再度お試しください。");
+        console.error(err);
+    });
+};
 
         // 時計
         setInterval(() => {
