@@ -6,165 +6,170 @@
     <title>e-hina</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
-        /* Apple標準のフォントシステムを模倣 */
         :root {
-            --bg-system: #F2F2F7;
-            --white: #FFFFFF;
+            --bg-color: #FFFFFF;
+            --secondary-bg: #F2F2F7;
+            --accent-orange: #FF9500;
             --text-main: #000000;
             --text-sub: #8E8E93;
-            --accent-orange: #FF9500;
-            --danger-red: #FF3B30;
-            --radius-outer: 38px;
-            --radius-inner: 22px;
+            --radius: 20px;
         }
 
-        body {
-            font-family: -apple-system, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "ヒラギノ角ゴ ProN W3", sans-serif;
-            background-color: var(--bg-system);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* 画面全体のコンテナ（iPhone 11の比率を意識） */
-        .page-container {
-            position: relative;
+        /* 画面全体を固定、スクロールさせない */
+        html, body {
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            font-family: -apple-system, "SF Pro Display", "Hiragino Kaku Gothic ProN", sans-serif;
+            overflow: hidden;
+            -webkit-user-select: none;
         }
 
-        .card-interface {
+        /* 画面遷移の基本構造 */
+        .view {
             position: absolute;
-            width: 90%;
-            height: 82%; /* iPhone 11の上下余白を考慮 */
-            background: var(--white);
-            border-radius: var(--radius-outer);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-            padding: 40px 28px;
-            box-sizing: border-box;
-            transition: all 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-            display: flex;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-color);
+            display: none;
             flex-direction: column;
+            padding: 60px 24px 44px; /* 上部のセーフエリアを考慮 */
+            box-sizing: border-box;
+            z-index: 10;
         }
 
-        /* 画面遷移のアニメーション */
-        #login-view { z-index: 3; }
-        #main-view { z-index: 1; opacity: 0; transform: scale(0.95); }
-        #confirm-view { z-index: 2; transform: translateX(100%); opacity: 0; }
+        .active { display: flex; }
 
-        .active { opacity: 1 !important; transform: scale(1) !important; }
-        .slide-up { transform: translateX(0) !important; opacity: 1 !important; }
-        .background-blur { transform: scale(0.92) !important; opacity: 0.4 !important; filter: blur(2px); }
+        /* --- ヘッダー領域 --- */
+        .header { margin-bottom: 30px; }
+        .year-text { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
+        .title-text { font-size: 34px; font-weight: 800; color: var(--text-main); margin: 0; }
 
-        /* テキスト・見出し */
-        .year-label { font-size: 14px; font-weight: 600; color: var(--text-sub); margin-bottom: 4px; }
-        .main-title { font-size: 34px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; margin: 0 0 30px 0; }
-
-        /* お知らせエリア */
-        .section-box {
-            background: #F8F8FA;
-            border-radius: var(--radius-inner);
-            padding: 20px;
+        /* --- お知らせセクション --- */
+        .info-section {
+            background: var(--secondary-bg);
+            border-radius: var(--radius);
+            padding: 18px;
             margin-bottom: 24px;
         }
-        .section-title { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 12px; }
-        .news-text { font-size: 15px; color: #3A3A3C; line-height: 1.5; margin: 0; }
+        .section-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 8px; }
+        .info-body { font-size: 15px; color: var(--text-main); line-height: 1.5; margin: 0; }
 
-        /* ステータス（比率調整） */
-        .status-row { display: flex; gap: 14px; margin-bottom: 30px; }
-        .status-item {
-            background: var(--white);
-            border: 1px solid #E5E5EA;
-            border-radius: var(--radius-inner);
-            padding: 18px;
-            flex: 1;
+        /* --- ステータスエリア --- */
+        .status-grid {
+            display: flex;
+            gap: 12px;
+            margin-bottom: auto; /* ボタンを下に押しやる */
         }
-        .item-label { font-size: 11px; font-weight: 700; color: var(--text-sub); display: block; margin-bottom: 8px; }
-        .item-value { font-size: 32px; font-weight: 700; color: var(--text-main); }
-        .item-value span { font-size: 16px; font-weight: 600; margin-left: 2px; }
+        .status-box {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid #E5E5EA;
+            border-radius: var(--radius);
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .box-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 6px; }
+        .box-value { font-size: 28px; font-weight: 700; color: var(--text-main); }
+        .box-value span { font-size: 14px; margin-left: 2px; }
 
-        /* ボタン */
-        .action-button {
-            margin-top: auto;
+        /* --- 確定ボタンエリア --- */
+        .button-area {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .btn-main {
+            width: 100%;
+            height: 72px;
             background: var(--text-main);
-            color: var(--white);
+            color: #FFF;
             border: none;
-            border-radius: 22px;
-            height: 76px;
+            border-radius: 20px;
             font-size: 18px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s, opacity 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
-        .action-button:active { transform: scale(0.97); opacity: 0.8; }
-        .orange-btn { background: var(--accent-orange); }
-        .cancel-btn { background: none; color: var(--text-sub); font-size: 15px; margin-top: 16px; border: none; }
+        .btn-orange { background: var(--accent-orange); }
+        .btn-secondary { background: none; color: var(--text-sub); font-size: 15px; }
 
-        /* パスコード入力 */
-        .pass-input {
-            width: 100%; padding: 20px; border: none; background: #F2F2F7;
-            border-radius: 18px; font-size: 24px; text-align: center; margin-bottom: 20px;
-            font-weight: 700; letter-spacing: 4px;
+        /* --- スライド確認画面 --- */
+        #confirm-view {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex; /* transitionを効かせるため */
+            z-index: 20;
+        }
+        #confirm-view.open { transform: translateX(0); }
+
+        /* ログイン入力 */
+        .login-input {
+            width: 100%; height: 64px; background: var(--secondary-bg);
+            border: none; border-radius: 16px; font-size: 24px; text-align: center;
+            margin-top: 40px; margin-bottom: 20px; font-weight: 700; letter-spacing: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="page-container">
-        
-        <div id="login-view" class="card-interface active">
-            <h1 class="main-title">e-hina</h1>
-            <p style="color:var(--text-sub); margin-bottom: 40px;">パスコードを入力してください</p>
-            <input type="password" id="pass-field" class="pass-input" placeholder="••••" maxlength="7">
-            <button class="action-button" onclick="handleAuth()">ログイン</button>
+    <div id="login-view" class="view active">
+        <div class="header">
+            <h1 class="title-text">e-hina</h1>
+        </div>
+        <p style="color:var(--text-sub);">パスコードを入力してください</p>
+        <input type="password" id="pass-code" class="login-input" placeholder="••••" maxlength="7">
+        <button class="btn-main" onclick="onLogin()">ログイン</button>
+    </div>
+
+    <div id="home-view" class="view">
+        <div class="header">
+            <div class="year-text" id="disp-year">2027年度</div>
+            <h1 class="title-text">ホーム</h1>
         </div>
 
-        <div id="main-view" class="card-interface">
-            <div class="year-label" id="year-display">2027年度</div>
-            <h1 class="main-title">ホーム</h1>
-
-            <div class="section-box">
-                <div class="section-title">お知らせ</div>
-                <p class="news-text" id="news-content">現在、新しいお知らせはありません。</p>
-            </div>
-
-            <div class="status-row">
-                <div class="status-item">
-                    <span class="item-label">保有ポイント</span>
-                    <div class="item-value" id="pt-display">0<span>pt</span></div>
-                </div>
-                <div class="status-item" style="background: #F8F8FA; border: none;">
-                    <span class="item-label" id="date-display">04/10 FRI</span>
-                    <div class="item-value" id="time-display" style="font-size: 24px; margin-top: 8px;">21:00</div>
-                </div>
-            </div>
-
-            <button class="action-button orange-btn" onclick="openConfirm()">支払い申請を確定する</button>
+        <div class="info-section">
+            <div class="section-label">お知らせ</div>
+            <p class="info-body" id="disp-news">現在お知らせはありません</p>
         </div>
 
-        <div id="confirm-view" class="card-interface">
-            <h1 class="main-title" style="font-size: 24px;">内容の確認</h1>
-            <div style="flex:1; display:flex; flex-direction:column; justify-content:center; text-align: center;">
-                <span style="color:var(--text-sub); font-weight: 700; font-size: 13px;">お支払い金額</span>
-                <div style="font-size: 64px; font-weight: 800; color:var(--danger-red); margin: 10px 0;">¥3,300</div>
-                <p style="color:var(--text-main); font-size: 15px; font-weight: 500; line-height: 1.6;">
-                    現金の準備はよろしいですか？<br>確定すると管理者に通知されます。
-                </p>
+        <div class="status-grid">
+            <div class="status-box">
+                <span class="box-label">保有ポイント</span>
+                <div class="box-value" id="disp-pt">0<span>pt</span></div>
             </div>
-            <button class="action-button orange-btn" onclick="executePayment()">申請を確定する</button>
-            <button class="cancel-btn" onclick="closeConfirm()">キャンセル</button>
+            <div class="status-box" style="background:var(--secondary-bg); border:none;">
+                <span class="box-label" id="disp-date">--/-- ---</span>
+                <div class="box-value" id="disp-time" style="font-size: 22px;">00:00</div>
+            </div>
         </div>
 
+        <div class="button-area">
+            <button class="btn-main btn-orange" onclick="openConfirm()">支払い申請を確定する</button>
+        </div>
+    </div>
+
+    <div id="confirm-view" class="view">
+        <div class="header">
+            <h1 class="title-text" style="font-size: 24px;">内容の確認</h1>
+        </div>
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center; text-align:center;">
+            <div class="section-label">お支払い合計</div>
+            <div style="font-size: 60px; font-weight: 900; color:#FF3B30; margin:10px 0;">¥3,300</div>
+            <p style="color:var(--text-main); font-weight: 500; line-height:1.6;">現金の準備ができたら、<br>申請を確定してください。</p>
+        </div>
+        <div class="button-area">
+            <button class="btn-main btn-orange" onclick="commitPayment()">申請を確定する</button>
+            <button class="btn-main btn-secondary" onclick="closeConfirm()">キャンセル</button>
+        </div>
     </div>
 
     <script type="module">
@@ -182,68 +187,57 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // ログイン処理
-        window.handleAuth = () => {
-            const val = document.getElementById('pass-field').value;
-            if(val === 'ooj1371') {
-                document.cookie = "auth_session=valid; max-age=315360000; path=/";
-                showMain();
-            } else {
-                alert("パスコードが違います");
-            }
+        // ログイン
+        window.onLogin = () => {
+            if(document.getElementById('pass-code').value === 'ooj1371') {
+                document.cookie = "auth=valid; max-age=315360000; path=/";
+                showHome();
+            } else { alert("パスコードが違います"); }
         };
 
-        function showMain() {
+        function showHome() {
             document.getElementById('login-view').classList.remove('active');
-            document.getElementById('login-view').style.display = 'none';
-            document.getElementById('main-view').classList.add('active');
-            syncData();
+            document.getElementById('home-view').classList.add('active');
+            sync();
         }
 
-        // リアルタイム同期
-        function syncData() {
+        // Firebase同期
+        function sync() {
             onValue(ref(db, 'system_config'), (snap) => {
                 const data = snap.val();
                 if(data) {
-                    document.getElementById('year-display').innerText = (data.year || 2027) + "年度";
-                    document.getElementById('pt-display').innerHTML = (data.points || 0) + "<span>pt</span>";
+                    document.getElementById('disp-year').innerText = (data.year || 2027) + "年度";
+                    document.getElementById('disp-pt').innerHTML = (data.points || 0) + "<span>pt</span>";
                 }
             });
         }
 
-        // 遷移アニメーション
-        window.openConfirm = () => {
-            document.getElementById('confirm-view').classList.add('slide-up');
-            document.getElementById('main-view').classList.add('background-blur');
-        };
-        window.closeConfirm = () => {
-            document.getElementById('confirm-view').classList.remove('slide-up');
-            document.getElementById('main-view').classList.remove('background-blur');
-        };
+        // スライド演出
+        window.openConfirm = () => document.getElementById('confirm-view').classList.add('open');
+        window.closeConfirm = () => document.getElementById('confirm-view').classList.remove('open');
 
-        // 支払い確定実行
-        window.executePayment = () => {
-            const requestRef = ref(db, 'requests');
-            const newPostRef = push(requestRef);
-            set(newPostRef, {
+        // ★支払い確定処理
+        window.commitPayment = () => {
+            const reqRef = ref(db, 'requests');
+            push(reqRef, {
                 amount: 3300,
                 status: "pending",
                 timestamp: Date.now()
             }).then(() => {
-                alert("申請が完了しました。");
+                alert("申請を確定しました。");
                 closeConfirm();
-            });
+            }).catch(err => alert("エラーが発生しました"));
         };
 
         // 時計
         setInterval(() => {
             const now = new Date();
             const days = ['日','月','火','水','木','金','土'];
-            document.getElementById('date-display').innerText = `${now.getMonth()+1}/${now.getDate()} (${days[now.getDay()]})`;
-            document.getElementById('time-display').innerText = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0');
+            document.getElementById('disp-date').innerText = `${now.getMonth()+1}/${now.getDate()} (${days[now.getDay()]})`;
+            document.getElementById('disp-time').innerText = now.getHours().toString().padStart(2,'0')+":"+now.getMinutes().toString().padStart(2,'0');
         }, 1000);
 
-        if(document.cookie.includes('auth_session=valid')) showMain();
+        if(document.cookie.includes('auth=valid')) showHome();
     </script>
 </body>
 </html>
