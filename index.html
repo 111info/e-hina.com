@@ -2,98 +2,200 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>e-hina 2027</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="e-hina">
+
     <style>
-        /* --- 全体のデザイン（角丸とフォント） --- */
+        :root {
+            --bg-color: #f0f2f5;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --accent-color: #007bff;
+            --pay-color: #ff5722;
+            --info-bg: #fff9e6;
+            --radius-big: 30px;
+            --radius-small: 18px;
+        }
+
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: #f0f2f5;
+            background-color: var(--bg-color);
+            margin: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            overflow: hidden;
             height: 100vh;
-            margin: 0;
         }
+
+        /* 共通コンテナ */
         .container {
-            background: white;
-            padding: 30px;
-            border-radius: 30px; /* 全体を大きな角丸に */
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--radius-big);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             width: 90%;
             max-width: 400px;
+            height: 85vh;
             text-align: center;
-        }
-        h1 { color: #333; margin-bottom: 20px; }
-        input {
-            width: 100%;
-            padding: 15px;
-            margin: 10px 0;
-            border: 2px solid #ddd;
-            border-radius: 15px; /* 入力欄も角丸 */
+            position: absolute;
+            top: 5vh;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             box-sizing: border-box;
-            font-size: 16px;
         }
-        button {
-            width: 100%;
-            padding: 15px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 15px; /* ボタンも角丸 */
-            font-size: 18px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        button:hover { background-color: #0056b3; }
-        #login-error { color: red; display: none; margin-top: 10px; }
 
-        /* メインコンテンツ（初期は非表示） */
-        #main-content { display: none; }
+        /* 【画面1】ログイン */
+        #login-screen { z-index: 10; }
+        .login-input {
+            width: 100%; padding: 18px; margin: 15px 0;
+            border: 2px solid #ddd; border-radius: var(--radius-small);
+            font-size: 16px; text-align: center; box-sizing: border-box;
+        }
+
+        /* 【画面2】メイン */
+        #main-screen { z-index: 5; display: none; }
+        .header { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+        .logo { font-size: 24px; font-weight: bold; }
+        .year-badge { background: #eee; padding: 4px 12px; border-radius: 20px; margin-left: 10px; font-size: 14px; }
+
+        .info-box {
+            background: var(--info-bg); border-radius: var(--radius-small);
+            padding: 15px; margin-bottom: 20px; text-align: left;
+            border: 1px solid #ffeeba;
+        }
+        .info-title { font-weight: bold; border-bottom: 1px solid #ddd; margin-bottom: 8px; }
+        .info-box ul { list-style: none; padding: 0; margin: 0; font-size: 14px; line-height: 1.6; }
+
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .status-card { background: #fff; border: 2px solid #f1f1f1; border-radius: var(--radius-small); padding: 12px; }
+        .points .value { font-size: 28px; font-weight: bold; color: #ff9800; }
+        .clock .time { font-size: 24px; font-weight: bold; }
+
+        /* 【画面3】確認スライド */
+        #confirm-screen { z-index: 8; transform: translateX(100%); }
+        .amount-display { font-size: 48px; font-weight: bold; color: var(--pay-color); margin: 20px 0; }
+
+        /* ボタン類 */
+        .btn {
+            width: 100%; padding: 18px; border: none; border-radius: var(--radius-small);
+            font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-blue { background: var(--accent-color); color: white; }
+        .btn-pay { background: var(--pay-color); color: white; height: 80px; box-shadow: 0 6px 0 #e64a19; }
+        .btn-pay:active { transform: translateY(3px); box-shadow: none; }
+        .btn-back { background: #eee; margin-top: 10px; }
+
+        .slide-in { transform: translateX(0) !important; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="container">
-        <h1>e-hina ログイン</h1>
+        <h1>e-hina</h1>
         <p>パスワードを入力してください</p>
-        <input type="password" id="pass-input" placeholder="Password">
-        <button onclick="checkLogin()">ログイン</button>
-        <p id="login-error">パスワードが違います</p>
+        <input type="password" id="pass-input" class="login-input" placeholder="Password">
+        <button class="btn btn-blue" onclick="checkLogin()">ログイン</button>
+        <p id="login-error" style="color:red; display:none;">パスワードが違います</p>
     </div>
 
-    <div id="main-content" class="container">
-        <h1>ようこそ e-hinaへ</h1>
-        <p>ログインに成功しました（10年間有効）</p>
+    <div id="main-screen" class="container">
+        <div class="header">
+            <span class="logo">e-hina</span>
+            <span id="fiscal-year" class="year-badge">2027年度</span>
         </div>
+        <div class="info-box">
+            <div class="info-title">お知らせ</div>
+            <ul id="news-list">
+                <li>4月分集金のお知らせ</li>
+                <li>新規ボトル入荷しました</li>
+            </ul>
+        </div>
+        <div class="status-grid">
+            <div class="status-card points">
+                <div style="font-size:12px; color:#888;">ポイント</div>
+                <div id="user-points" class="value">660</div>
+            </div>
+            <div class="status-card clock">
+                <div id="current-date" style="font-size:12px;"></div>
+                <div id="current-time" class="time"></div>
+            </div>
+        </div>
+        <button class="btn btn-pay" onclick="openConfirm()">現金支払い申請をする</button>
+    </div>
 
-    <script>
-        // --- ログインチェック機能 ---
-        function checkLogin() {
+    <div id="confirm-screen" class="container">
+        <h1>支払い確認</h1>
+        <p>金額を確認してください</p>
+        <div class="amount-display">3,300<span style="font-size:20px;">円</span></div>
+        <button class="btn btn-pay" onclick="sendPayment()">支払いを確定する</button>
+        <button class="btn btn-back" onclick="closeConfirm()">戻る</button>
+    </div>
+
+    <script type="module">
+        // Firebase設定
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZmx28FAnn8kS6S0cnsAIIKhqjpWbXb2A",
+            authDomain: "e-hina-app.firebaseapp.com",
+            projectId: "e-hina-app",
+            storageBucket: "e-hina-app.firebasestorage.app",
+            messagingSenderId: "355053921531",
+            appId: "1:355053921531:web:214aafe5275ec4f4033c5e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ログインチェック
+        window.checkLogin = function() {
             const pass = document.getElementById('pass-input').value;
             if (pass === 'ooj1371') {
-                // 10年間のCookieをセット (秒数: 10年 = 315360000秒)
                 document.cookie = "auth=true; max-age=315360000; path=/";
-                showMain();
+                location.reload();
             } else {
                 document.getElementById('login-error').style.display = 'block';
             }
-        }
-
-        // --- Cookieがあるか確認して画面を切り替える ---
-        window.onload = function() {
-            if (document.cookie.split(';').some((item) => item.trim().startsWith('auth=true'))) {
-                showMain();
-            }
         };
 
-        function showMain() {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
+        // 画面切り替え
+        window.onload = function() {
+            if (document.cookie.indexOf('auth=true') !== -1) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-screen').style.display = 'block';
+            }
+            updateClock();
+            setInterval(updateClock, 1000);
+        };
+
+        // 時計
+        function updateClock() {
+            const now = new Date();
+            const days = ['日','月','火','水','木','金','土'];
+            document.getElementById('current-date').innerText = `${now.getMonth()+1}/${now.getDate()} (${days[now.getDay()]})`;
+            document.getElementById('current-time').innerText = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         }
 
-        /* --- Firebase連携の設定（後でここにConfigを貼る） --- */
-        // var firebaseConfig = { ★ここにFirebaseのConfigを貼る★ };
+        // スライド操作
+        window.openConfirm = () => document.getElementById('confirm-screen').classList.add('slide-in');
+        window.closeConfirm = () => document.getElementById('confirm-screen').classList.remove('slide-in');
+
+        // 支払い送信（Firebase）
+        window.sendPayment = function() {
+            const newRequestRef = push(ref(db, 'requests'));
+            set(newRequestRef, {
+                status: "pending",
+                timestamp: Date.now(),
+                amount: 3300
+            }).then(() => {
+                alert("申請完了！管理者の通知をお待ちください。");
+                closeConfirm();
+            });
+        };
     </script>
 </body>
 </html>
